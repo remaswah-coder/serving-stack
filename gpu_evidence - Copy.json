@@ -1,0 +1,6 @@
+{
+  "cuda": false,
+  "device_name": "cpu",
+  "tokens_per_s": 2.3,
+  "model": "Qwen/Qwen2.5-1.5B-Instruct"
+}

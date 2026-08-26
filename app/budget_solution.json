@@ -1,0 +1,363 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "gpuType": "T4",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    },
+    "accelerator": "GPU"
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/remaswah-coder/ai-bootcamp/blob/main/budget_solution.json\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def count_params(cfg):\n",
+        "    h = cfg[\"hidden_size\"]\n",
+        "    L = cfg[\"num_hidden_layers\"]\n",
+        "    n_heads = cfg[\"num_attention_heads\"]\n",
+        "    n_kv = cfg[\"num_key_value_heads\"]\n",
+        "    inter = cfg[\"intermediate_size\"]\n",
+        "    vocab = cfg[\"vocab_size\"]\n",
+        "    tied = cfg.get(\"tie_word_embeddings\", False)\n",
+        "    head_dim = h // n_heads\n",
+        "\n",
+        "    # attention: q and o are full hidden_size x hidden_size; k and v are\n",
+        "    # narrower because of grouped-query attention (fewer kv heads than query heads)\n",
+        "    q = h * h\n",
+        "    k = h * (n_kv * head_dim)\n",
+        "    v = h * (n_kv * head_dim)\n",
+        "    o = h * h\n",
+        "    attn = q + k + v + o\n",
+        "\n",
+        "    # gated MLP (SwiGLU-style): three matrices, not two\n",
+        "    gate = h * inter\n",
+        "    up = h * inter\n",
+        "    down = inter * h\n",
+        "    mlp = gate + up + down\n",
+        "\n",
+        "    per_layer = attn + mlp\n",
+        "    embed_matrices = 1 if tied else 2   # tied models reuse one matrix for input+output\n",
+        "    total = L * per_layer + embed_matrices * vocab * h\n",
+        "    return total\n",
+        "\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "1b4COG4JlUAJ"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "CATALOG = {\n",
+        "    \"Qwen2.5-0.5B-Instruct\": {\"hidden_size\": 896, \"num_hidden_layers\": 24, \"num_attention_heads\": 14, \"num_key_value_heads\": 2, \"intermediate_size\": 4864, \"vocab_size\": 151936, \"tie_word_embeddings\": True},\n",
+        "    \"Qwen2.5-1.5B-Instruct\": {\"hidden_size\": 1536, \"num_hidden_layers\": 28, \"num_attention_heads\": 12, \"num_key_value_heads\": 2, \"intermediate_size\": 8960, \"vocab_size\": 151936, \"tie_word_embeddings\": True},\n",
+        "    \"Qwen2.5-3B-Instruct\": {\"hidden_size\": 2048, \"num_hidden_layers\": 36, \"num_attention_heads\": 16, \"num_key_value_heads\": 2, \"intermediate_size\": 11008, \"vocab_size\": 151936, \"tie_word_embeddings\": True},\n",
+        "    \"Llama-3.2-1B-Instruct\": {\"hidden_size\": 2048, \"num_hidden_layers\": 16, \"num_attention_heads\": 32, \"num_key_value_heads\": 8, \"intermediate_size\": 8192, \"vocab_size\": 128256, \"tie_word_embeddings\": True},\n",
+        "    \"Llama-3.2-3B-Instruct\": {\"hidden_size\": 3072, \"num_hidden_layers\": 28, \"num_attention_heads\": 24, \"num_key_value_heads\": 8, \"intermediate_size\": 8192, \"vocab_size\": 128256, \"tie_word_embeddings\": True},\n",
+        "}\n",
+        "for name, cfg in CATALOG.items():\n",
+        "    p = count_params(cfg)\n",
+        "    print(f\"{name}: {p/1e9:.2f}B params\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "pCgW5A0AltaQ",
+        "outputId": "cbd72fec-55aa-4ed4-d7e2-575e0772ed71"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Qwen2.5-0.5B-Instruct: 0.49B params\n",
+            "Qwen2.5-1.5B-Instruct: 1.54B params\n",
+            "Qwen2.5-3B-Instruct: 3.09B params\n",
+            "Llama-3.2-1B-Instruct: 1.24B params\n",
+            "Llama-3.2-3B-Instruct: 3.21B params\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "CATALOG[\"Qwen2.5-1.5B-Instruct\"][\"tie_word_embeddings\"] = False\n",
+        "\n",
+        "p_new = count_params(CATALOG[\"Qwen2.5-1.5B-Instruct\"])\n",
+        "print(f\"Qwen2.5-1.5B-Instruct (after untying): {p_new/1e9:.2f}B params\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "1V36WLCPmNat",
+        "outputId": "97d93fa0-e1a0-410a-bff0-ebca04f94e57"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Qwen2.5-1.5B-Instruct (after untying): 1.78B params\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def kv_bytes_per_token(cfg, kv_dtype_bytes=2):\n",
+        "    h = cfg[\"hidden_size\"]\n",
+        "    L = cfg[\"num_hidden_layers\"]\n",
+        "    n_kv = cfg[\"num_key_value_heads\"]\n",
+        "    n_heads = cfg[\"num_attention_heads\"]\n",
+        "    head_dim = h // n_heads\n",
+        "    return 2 * L * n_kv * head_dim * kv_dtype_bytes"
+      ],
+      "metadata": {
+        "id": "R7vxxtw7mzyT"
+      },
+      "execution_count": 8,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "PRECISIONS = {\n",
+        "    \"FP16\": 2,\n",
+        "    \"BF16\": 2,\n",
+        "    \"FP8\": 1,\n",
+        "    \"FP4\": 0.5,\n",
+        "}\n",
+        "OVERHEAD_GB = 1.0\n",
+        "\n",
+        "def solve(budget_gb, concurrent_users, context_tokens):\n",
+        "    rows = []\n",
+        "    for name, cfg in CATALOG.items():\n",
+        "        params = count_params(cfg)\n",
+        "        kv_per_tok = kv_bytes_per_token(cfg)\n",
+        "        for prec, bytes_per_param in PRECISIONS.items():\n",
+        "            weight_gb = params * bytes_per_param / 1e9\n",
+        "            kv_gb = kv_per_tok * context_tokens * concurrent_users / 1e9\n",
+        "            total_gb = weight_gb + kv_gb + OVERHEAD_GB\n",
+        "            fits = total_gb <= budget_gb\n",
+        "            rows.append({\n",
+        "                \"model\": name, \"precision\": prec, \"params\": params,\n",
+        "                \"weight_gb\": round(weight_gb, 2), \"kv_gb\": round(kv_gb, 2),\n",
+        "                \"total_gb\": round(total_gb, 2), \"fits\": fits,\n",
+        "            })\n",
+        "    fitting = [r for r in rows if r[\"fits\"]]\n",
+        "    best = max(fitting, key=lambda r: r[\"params\"]) if fitting else None\n",
+        "    return rows, best\n",
+        "\n",
+        "rows, best = solve(budget_gb=16, concurrent_users=4, context_tokens=4096)\n",
+        "for r in sorted(rows, key=lambda r: -r[\"params\"]):\n",
+        "    mark = \"FITS\" if r[\"fits\"] else \"----\"\n",
+        "    print(f\"{mark}  {r['model']:25s} {r['precision']:5s}  total={r['total_gb']:6.2f}GB\")\n",
+        "print(\"BEST:\", best)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "0gcZgDtotZQI",
+        "outputId": "f0cc949e-2514-4145-e5b9-ea471a2f40f3"
+      },
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "FITS  Llama-3.2-3B-Instruct     FP16   total=  9.30GB\n",
+            "FITS  Llama-3.2-3B-Instruct     BF16   total=  9.30GB\n",
+            "FITS  Llama-3.2-3B-Instruct     FP8    total=  6.09GB\n",
+            "FITS  Llama-3.2-3B-Instruct     FP4    total=  4.49GB\n",
+            "FITS  Qwen2.5-3B-Instruct       FP16   total=  7.78GB\n",
+            "FITS  Qwen2.5-3B-Instruct       BF16   total=  7.78GB\n",
+            "FITS  Qwen2.5-3B-Instruct       FP8    total=  4.69GB\n",
+            "FITS  Qwen2.5-3B-Instruct       FP4    total=  3.15GB\n",
+            "FITS  Qwen2.5-1.5B-Instruct     FP16   total=  5.02GB\n",
+            "FITS  Qwen2.5-1.5B-Instruct     BF16   total=  5.02GB\n",
+            "FITS  Qwen2.5-1.5B-Instruct     FP8    total=  3.25GB\n",
+            "FITS  Qwen2.5-1.5B-Instruct     FP4    total=  2.36GB\n",
+            "FITS  Llama-3.2-1B-Instruct     FP16   total=  4.01GB\n",
+            "FITS  Llama-3.2-1B-Instruct     BF16   total=  4.01GB\n",
+            "FITS  Llama-3.2-1B-Instruct     FP8    total=  2.77GB\n",
+            "FITS  Llama-3.2-1B-Instruct     FP4    total=  2.15GB\n",
+            "FITS  Qwen2.5-0.5B-Instruct     FP16   total=  2.19GB\n",
+            "FITS  Qwen2.5-0.5B-Instruct     BF16   total=  2.19GB\n",
+            "FITS  Qwen2.5-0.5B-Instruct     FP8    total=  1.70GB\n",
+            "FITS  Qwen2.5-0.5B-Instruct     FP4    total=  1.45GB\n",
+            "BEST: {'model': 'Llama-3.2-3B-Instruct', 'precision': 'FP16', 'params': 3212574720, 'weight_gb': 6.43, 'kv_gb': 1.88, 'total_gb': 9.3, 'fits': True}\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import json\n",
+        "budget_gb, concurrent_users, context_tokens = 16, 4, 4096\n",
+        "rows, best = solve(budget_gb, concurrent_users, context_tokens)\n",
+        "out = {\n",
+        "    \"budget_gb\": budget_gb, \"concurrent_users\": concurrent_users,\n",
+        "    \"context_tokens\": context_tokens, \"best\": best,\n",
+        "    \"all_combinations\": rows,\n",
+        "}\n",
+        "with open(\"budget_solution.json\", \"w\") as f:\n",
+        "    json.dump(out, f, indent=2)\n",
+        "print(json.dumps(best, indent=2))"
+      ],
+      "metadata": {
+        "id": "NaLu0egjtuUt",
+        "outputId": "13149af2-8340-4ae8-b234-ec74c37d5ba4",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 17,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "{\n",
+            "  \"model\": \"Llama-3.2-3B-Instruct\",\n",
+            "  \"precision\": \"FP16\",\n",
+            "  \"params\": 3212574720,\n",
+            "  \"weight_gb\": 6.43,\n",
+            "  \"kv_gb\": 1.88,\n",
+            "  \"total_gb\": 9.3,\n",
+            "  \"fits\": true\n",
+            "}\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!git config --global remaswah@gmail.com\n",
+        "!git config --globalremaswah"
+      ],
+      "metadata": {
+        "id": "Kr9omHASvDEd",
+        "outputId": "3979e552-b103-4f57-abae-d13aef84c860",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 20,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "error: invalid key: remaswah@gmail.com\n",
+            "error: unknown option `globalremaswah'\n",
+            "usage: git config [<options>]\n",
+            "\n",
+            "Config file location\n",
+            "    --global              use global config file\n",
+            "    --system              use system config file\n",
+            "    --local               use repository config file\n",
+            "    --worktree            use per-worktree config file\n",
+            "    -f, --file <file>     use given config file\n",
+            "    --blob <blob-id>      read config from given blob object\n",
+            "\n",
+            "Action\n",
+            "    --get                 get value: name [value-pattern]\n",
+            "    --get-all             get all values: key [value-pattern]\n",
+            "    --get-regexp          get values for regexp: name-regex [value-pattern]\n",
+            "    --get-urlmatch        get value specific for the URL: section[.var] URL\n",
+            "    --replace-all         replace all matching variables: name value [value-pattern]\n",
+            "    --add                 add a new variable: name value\n",
+            "    --unset               remove a variable: name [value-pattern]\n",
+            "    --unset-all           remove all matches: name [value-pattern]\n",
+            "    --rename-section      rename section: old-name new-name\n",
+            "    --remove-section      remove a section: name\n",
+            "    -l, --list            list all\n",
+            "    --fixed-value         use string equality when comparing values to 'value-pattern'\n",
+            "    -e, --edit            open an editor\n",
+            "    --get-color           find the color configured: slot [default]\n",
+            "    --get-colorbool       find the color setting: slot [stdout-is-tty]\n",
+            "\n",
+            "Type\n",
+            "    -t, --type <>         value is given this type\n",
+            "    --bool                value is \"true\" or \"false\"\n",
+            "    --int                 value is decimal number\n",
+            "    --bool-or-int         value is --bool or --int\n",
+            "    --bool-or-str         value is --bool or string\n",
+            "    --path                value is a path (file or directory name)\n",
+            "    --expiry-date         value is an expiry date\n",
+            "\n",
+            "Other\n",
+            "    -z, --null            terminate values with NUL byte\n",
+            "    --name-only           show variable names only\n",
+            "    --includes            respect include directives on lookup\n",
+            "    --show-origin         show origin of config (file, standard input, blob, command line)\n",
+            "    --show-scope          show scope of config (worktree, local, global, system, command)\n",
+            "    --default <value>     with --get, use default value when missing entry\n",
+            "\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!git status\n",
+        "!git add budget_solution.json\n",
+        "!git commit -m \"Add W2D1 budget solution\"\n",
+        "!git push"
+      ],
+      "metadata": {
+        "id": "zRJ5WRwl1J7Y",
+        "outputId": "6b382b89-6f54-46f7-c63a-76f2c08dd6cb",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 21,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "fatal: not a git repository (or any of the parent directories): .git\n",
+            "fatal: not a git repository (or any of the parent directories): .git\n",
+            "fatal: not a git repository (or any of the parent directories): .git\n",
+            "fatal: not a git repository (or any of the parent directories): .git\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
