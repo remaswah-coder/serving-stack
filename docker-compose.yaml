@@ -1,0 +1,19 @@
+services:
+  serving:
+   # build: .
+    image: remaswahas/aidc-serving:cpu-v1
+    ports:
+      - "${HOST_PORT}:8000"
+    environment:
+      MODEL_ID: ${MODEL_ID}
+      API_KEY: ${API_KEY}
+      MAX_TOKENS: ${MAX_TOKENS}
+    volumes:
+      - hf-cache:/home/app/.cache/huggingface
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+
+volumes:
+  hf-cache:
