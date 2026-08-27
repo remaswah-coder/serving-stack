@@ -38,7 +38,7 @@ To run the checks locally:
 1. **Check container status:**
    ```powershell
    docker compose ps
-   Verify endpoints using curl (PowerShell):
+Verify endpoints using curl (PowerShell):
 
 PowerShell
 # Health Check
@@ -46,7 +46,8 @@ curl.exe -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/health
 
 # Authorized Chat Completion Test
 curl.exe -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8000/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer secret123" -d "@payload.json"
+
 🛠️ Tech Stack
 Docker & Docker Compose for environment isolation and orchestration.
 
-FastAPI / Uvicorn for high-performance API serving
+FastAPI / Uvicorn for high-performance API serving.
