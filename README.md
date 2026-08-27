@@ -39,6 +39,8 @@ To run the checks locally:
 1. **Check container status:**
    ```powershell
    docker compose ps
+    ```
+   
 Verify endpoints using curl (PowerShell):
 curl.exe -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/health
 
