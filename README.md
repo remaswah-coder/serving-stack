@@ -27,13 +27,13 @@ Manual verification was successfully performed using `curl` against the local se
 
 ### 🛠️ Curl Results & Verification Output
 <img width="2524" height="588" alt="Screenshot 2026-08-27 173640" src="https://github.com/user-attachments/assets/22041c00-060a-4e34-a726-d384ede2dbd8" />
+<img width="788" height="72" alt="Screenshot 2026-08-27 174348" src="https://github.com/user-attachments/assets/66296b4c-0f45-43ca-afab-6b2847ceac4d" />
 
 ---
 
 ## 🚀 Quick Verification Commands
 
 To run the checks locally:
-<img width="788" height="72" alt="Screenshot 2026-08-27 174348" src="https://github.com/user-attachments/assets/66296b4c-0f45-43ca-afab-6b2847ceac4d" />
 
 1. **Check container status:**
    ```powershell
