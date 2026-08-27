@@ -29,7 +29,6 @@ Manual verification was successfully performed using `curl` against the local se
 <img width="788" height="72" alt="Screenshot 2026-08-27 174348" src="https://github.com/user-attachments/assets/3c228c56-8665-4bd8-803b-2402f5916fdf" />
 
 ---
-
 ## 🚀 Quick Verification Commands
 
 To run the checks locally:
@@ -37,7 +36,7 @@ To run the checks locally:
 1. **Check container status:**
    ```powershell
    docker compose ps
-Verify endpoints using curl:
+Verify endpoints using curl (PowerShell):
 
 PowerShell
 # Health Check
@@ -45,6 +44,8 @@ curl.exe -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/health
 
 # Authorized Chat Completion Test
 curl.exe -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8000/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer secret123" -d "@payload.json"
+
+
 
 🛠️ Tech Stack
 Docker & Docker Compose for environment isolation and orchestration.
