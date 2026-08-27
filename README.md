@@ -23,20 +23,20 @@ Manual verification was successfully performed using `curl` against the local se
 
 ---
 
-<img width="788" height="72" alt="Screenshot 2026-08-27 174348" src="https://github.com/user-attachments/assets/fd7106b8-d860-40ff-8a8e-8706aa407366" />
 
 To run the checks locally:
 
 1. **Check container status:**
    ```powershell
    docker compose ps
+<img width="788" height="72" alt="Screenshot 2026-08-27 174348" src="https://github.com/user-attachments/assets/fd7106b8-d860-40ff-8a8e-8706aa407366" />
 
    Verify endpoints using curl:
 2. **Verify endpoints using curl:**
 
 ```powershell
 # Health Check
-curl.exe -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/health
+curl.exe -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8000/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer secret123" -d "@payload.json"
 
 # Authorized Chat Completion Test
 curl.exe -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8000/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer secret123" -d "@payload.json"
