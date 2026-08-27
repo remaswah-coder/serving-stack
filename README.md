@@ -11,7 +11,7 @@ The service runs inside a Docker container utilizing a specialized CPU-serving i
 | `w2d5-lab-starter-serving-1` | `remaSwahas/aidc-serving:cpu-v1` | `0.0.0.0:8000->8000/tcp` | **Up & Healthy** ✅ |
 
 ### 📋 Container Status Verification
-<img width="2532" height="242" alt="Screenshot 2026-08-27 181831" src="https://github.com/user-attachments/assets/e505b8c6-3fe3-4acf-894d-e3a543a038c6" />
+<img width="2532" height="242" alt="Screenshot 2026-08-27 181831" src="https://github.com/user-attachments/assets/86f8a8e7-68e1-4a68-9885-6e5b1809f404" />
 
 ---
 
@@ -26,9 +26,7 @@ Manual verification was successfully performed using `curl` against the local se
 | **Authorized Request** | `POST /v1/chat/completions` | Content-Type & Bearer Token | `200` | **200** | **GREEN CHECK: PASS** 🎉 |
 
 ### 🛠️ Curl Results & Verification Output
-<img width="2524" height="588" alt="Screenshot 2026-08-27 173640" src="https://github.com/user-attachments/assets/d005297f-2c4e-4499-810a-467c73517b88" />
-
-<img width="788" height="72" alt="Screenshot 2026-08-27 174348" src="https://github.com/user-attachments/assets/fa626f9d-ee35-43ce-a75a-7655df2d887d" />
+<img width="788" height="72" alt="Screenshot 2026-08-27 174348" src="https://github.com/user-attachments/assets/3c228c56-8665-4bd8-803b-2402f5916fdf" />
 
 ---
 
@@ -39,7 +37,7 @@ To run the checks locally:
 1. **Check container status:**
    ```powershell
    docker compose ps
-   Verify endpoints using curl:
+Verify endpoints using curl:
 
 PowerShell
 # Health Check
@@ -47,7 +45,10 @@ curl.exe -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/health
 
 # Authorized Chat Completion Test
 curl.exe -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8000/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer secret123" -d "@payload.json"
+
 🛠️ Tech Stack
 Docker & Docker Compose for environment isolation and orchestration.
 
 FastAPI / Uvicorn for high-performance API serving.
+
+   
