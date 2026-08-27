@@ -1,0 +1,31 @@
+name: Automated Lab Grading
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Student Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Inject Test Environment File (.env)
+        run: |
+          echo "IMAGE=code2expert/aidc-serving:cpu-v2" >> .env
+          echo "MODEL_ID=Qwen/Qwen2.5-0.5B-Instruct" >> .env
+          echo "HOST_PORT=8000" >> .env
+          echo "API_KEY=grading-secret-key-9999" >> .env
+          echo "MAX_TOKENS=256" >> .env
+
+      - name: Run Verification Script
+        run: |
+          chmod +x verify.sh
+          ./verify.sh
