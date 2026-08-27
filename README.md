@@ -39,10 +39,12 @@ To run the checks locally:
 docker compose ps
 ```
 ### 2. Verify endpoints using curl (PowerShell):
+```powershell
+
 curl.exe -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/health
 
 curl.exe -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8000/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer secret123" -d "@payload.json"
-
+```
 🛠️ Tech Stack
 Docker & Docker Compose for environment isolation and orchestration.
 
