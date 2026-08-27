@@ -11,7 +11,7 @@ The service runs inside a Docker container utilizing a specialized CPU-serving i
 | `w2d5-lab-starter-serving-1` | `remaSwahas/aidc-serving:cpu-v1` | `0.0.0.0:8000->8000/tcp` | **Up & Healthy** ✅ |
 
 ### 📋 Container Status Verification
-<img width="2532" height="242" alt="Screenshot 2026-08-27 181831" src="https://github.com/user-attachments/assets/86f8a8e7-68e1-4a68-9885-6e5b1809f404" />
+<img width="2532" height="242" alt="Screenshot 2026-08-27 181831" src="https://github.com/user-attachments/assets/c5f917f3-318d-4fdd-8764-d756770d8bac" />
 
 ---
 
@@ -26,17 +26,19 @@ Manual verification was successfully performed using `curl` against the local se
 | **Authorized Request** | `POST /v1/chat/completions` | Content-Type & Bearer Token | `200` | **200** | **GREEN CHECK: PASS** 🎉 |
 
 ### 🛠️ Curl Results & Verification Output
-<img width="788" height="72" alt="Screenshot 2026-08-27 174348" src="https://github.com/user-attachments/assets/3c228c56-8665-4bd8-803b-2402f5916fdf" />
+<img width="2524" height="588" alt="Screenshot 2026-08-27 173640" src="https://github.com/user-attachments/assets/22041c00-060a-4e34-a726-d384ede2dbd8" />
 
 ---
+
 ## 🚀 Quick Verification Commands
 
 To run the checks locally:
+<img width="788" height="72" alt="Screenshot 2026-08-27 174348" src="https://github.com/user-attachments/assets/66296b4c-0f45-43ca-afab-6b2847ceac4d" />
 
 1. **Check container status:**
    ```powershell
    docker compose ps
-Verify endpoints using curl (PowerShell):
+   Verify endpoints using curl (PowerShell):
 
 PowerShell
 # Health Check
@@ -44,12 +46,7 @@ curl.exe -s -o /dev/null -w "%{http_code}\n" http://localhost:8000/health
 
 # Authorized Chat Completion Test
 curl.exe -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8000/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer secret123" -d "@payload.json"
-
-
-
 🛠️ Tech Stack
 Docker & Docker Compose for environment isolation and orchestration.
 
-FastAPI / Uvicorn for high-performance API serving.
-
-   
+FastAPI / Uvicorn for high-performance API serving
